@@ -27,7 +27,6 @@ module Applicaster
     end
 
     def admin
-      puts user_json.inspect
       user_json[:admin]
     end
 
