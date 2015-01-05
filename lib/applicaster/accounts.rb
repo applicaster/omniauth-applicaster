@@ -5,7 +5,7 @@ module Applicaster
 
     class << self
       def default_site
-        "http://accounts2.applicaster.com"
+        "https://accounts2.applicaster.com"
       end
 
       def site
