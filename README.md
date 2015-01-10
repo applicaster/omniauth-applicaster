@@ -13,29 +13,27 @@ gem 'omniauth-applicaster'
 
 ## Usage
 
-### Configuration
-
-The OAuth client ID and client secret are read from the environment variables
-`ACCOUNTS_CLIENT_ID` and `ACCOUNTS_CLIENT_SECRET` respectivly.
-
-The gem uses `https://accounts2.applicaster.com` as the site's endpoint by
-default to change this set the `ACCOUNTS_BASE_URL` environment variable. This is
-useful for example when running a local version of the accounts service
-
-### Omniauth strategy
+### Omniauth strategy in Rails
 
 See [Omniauth](https://github.com/intridea/omniauth) for setting up omniauth.
 
-In Rails, you will need something along the lines of:
+```ruby
+# config/initializers/applicaster.rb
+
+Applicaster::Accounts.configure do |config|
+  config.client_id = "my-service-uid"
+  config.client_secret = "my-service-secret"
+
+  #use local accounts service with Pow when in development
+  config.base_url = "http://accounts2.dev/" if Rails.env.development?
+end
+```
 
 ```ruby
-ENV["ACCOUNTS_CLIENT_ID"] = "my-service-uid"
-ENV["ACCOUNTS_CLIENT_SECRET"] = "my-service-secret"
+# config/initializers/omniauth.rb
 
 Rails.application.config.middleware.use OmniAuth::Builder do
-  provider :applicaster,
-    ENV["ACCOUNTS_CLIENT_ID"],
-    ENV["ACCOUNTS_CLIENT_SECRET"]
+  provider :applicaster
 end
 ```
 
@@ -67,6 +65,21 @@ MyApp::Application.routes.draw do
 end
 ```
 
+### Configuration
+
+For the possible configuration options please see
+[Applicaster::Accounts::Configuration](lib/applicaster/accounts/configuration.rb)
+
+If not provided via the configuration block, the OAuth client ID and client
+secret are read from the environment variables `ACCOUNTS_CLIENT_ID` and
+`ACCOUNTS_CLIENT_SECRET` respectivly.
+
+The gem uses `https://accounts2.applicaster.com` as the site's endpoint by
+default to change this use the `base_url` config option or set the
+`ACCOUNTS_BASE_URL` environment variable. This is useful for example when
+running a local version of the accounts service
+
+
 ### Accounts SDK
 
 #### List all available accounts
@@ -83,7 +96,7 @@ end
 
 ```ruby
 user = Applicaster::Accounts.user_from_token(access_token)
-# user is an Applicaster::Accounts::User instnce
+# user is an Applicaster::Accounts::User instance
 ```
 
 ## Contributing

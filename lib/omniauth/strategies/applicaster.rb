@@ -24,12 +24,7 @@ module OmniAuth
       end
 
       def client
-        ::OAuth2::Client.new(
-          options.client_id,
-          options.client_secret,
-          site: ::Applicaster::Accounts.site,
-          authorize_url: "/oauth/authorize",
-        )
+        ::Applicaster::Accounts.oauth_client
       end
     end
   end

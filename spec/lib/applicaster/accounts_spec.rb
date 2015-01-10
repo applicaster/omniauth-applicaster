@@ -7,32 +7,6 @@ RSpec.describe Applicaster::Accounts do
     end
   end
 
-  describe ".site" do
-    it "returns a URI object" do
-      expect(return_value).to be_kind_of(URI)
-    end
-
-    it "returns https://accounts2.applicaster.com" do
-      expect(return_value.to_s).to eq("https://accounts2.applicaster.com")
-    end
-
-    context "when ACCOUNTS_BASE_URL is set" do
-      around do |example|
-        with_base_url("http://example.com") do
-          example.run
-        end
-      end
-
-      it "returns http://example.com" do
-        expect(return_value.to_s).to eq("http://example.com")
-      end
-    end
-
-    def return_value
-      Applicaster::Accounts.site
-    end
-  end
-
   describe ".connection" do
     let(:remote_url) { "https://accounts2.applicaster.com/test.json" }
     let(:request_stub) { stub_request(:get, remote_url) }
@@ -63,22 +37,29 @@ RSpec.describe Applicaster::Accounts do
     end
 
     context "when server is not responding" do
-      around do |example|
-        with_base_url("http://localhost:6969") do
-          WebMock.allow_net_connect!
-          example.run
-          WebMock.disable_net_connect!
-        end
-      end
+      let(:timeout) { 0.1 }
+      let(:retries) { 1 }
+      let(:max_exec_time) { 1 + timeout + (timeout + 0.05) * retries }
 
       before do
         @server = TCPServer.new(6969)
+
+        Applicaster::Accounts.configure do |config|
+          config.base_url = "http://localhost:6969"
+          config.timeout = timeout
+          config.retries = retries
+        end
       end
 
-      it "times out after 0.5 second with 2 retries" do
-        expect {
-          connection.get("/test.json") rescue nil
-        }.to change { Time.now }.by(a_value < 1.5)
+      it "times out after 0.1 second with 1 retry" do
+        disable_webmock do
+          expect {
+            begin
+              connection.get("/test.json")
+            rescue Faraday::TimeoutError
+            end
+          }.to change { Time.now }.by(a_value < max_exec_time)
+        end
       end
     end
 
@@ -111,17 +92,27 @@ RSpec.describe Applicaster::Accounts do
     end
   end
 
-  describe "#initialize" do
-    it "accepts client_id and client_secret" do
-      service = Applicaster::Accounts.new("my_client_id", "my_client_secret")
-
-      expect(service.client_id).to eq("my_client_id")
-      expect(service.client_secret).to eq("my_client_secret")
+  describe ".config" do
+    it "returns an Applicaster::Accounts::Configuration" do
+      expect(config).to be_kind_of(Applicaster::Accounts::Configuration)
     end
 
-    it "takes default values from ENV vars" do
-      expect(accounts_service.client_id).to eq("client_id")
-      expect(accounts_service.client_secret).to eq("client_secret")
+    def config
+      Applicaster::Accounts.config
+    end
+  end
+
+  describe ".configure" do
+    it "yields with Applicaster::Accounts.config" do
+      expect { |b| configure(&b) }.to yield_with_args(config)
+    end
+
+    def configure(&block)
+      Applicaster::Accounts.configure(&block)
+    end
+
+    def config
+      Applicaster::Accounts.config
     end
   end
 
@@ -159,11 +150,5 @@ RSpec.describe Applicaster::Accounts do
         },
       ]
     end
-  end
-
-  def with_base_url(url)
-    value_bofre, ENV["ACCOUNTS_BASE_URL"] = ENV["ACCOUNTS_BASE_URL"], url
-    yield
-    ENV["ACCOUNTS_BASE_URL"] = value_bofre
   end
 end

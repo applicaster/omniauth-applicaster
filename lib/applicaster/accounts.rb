@@ -6,37 +6,33 @@ module Applicaster
   class Accounts
     autoload :Account, "applicaster/accounts/account"
     autoload :User, "applicaster/accounts/user"
+    autoload :Configuration, "applicaster/accounts/configuration"
 
     RETRYABLE_STATUS_CODES = [500, 503, 502]
-    FARADAY_TIMEOUT = 0.5
-
-    attr_accessor :client_id
-    attr_accessor :client_secret
 
     class << self
-      def default_site
-        "https://accounts2.applicaster.com"
-      end
-
-      def site
-        URI.parse(ENV["ACCOUNTS_BASE_URL"] || default_site)
-      end
-
       def connection(options = {})
-        Faraday.new(url: site, request: { timeout: FARADAY_TIMEOUT } ) do |conn|
+        conn_opts = {
+          url: config.base_url,
+          request: { timeout: config.timeout }
+        }
+
+        Faraday.new(conn_opts) do |conn|
           if options[:token]
             conn.request :oauth2, options[:token]
           end
 
           conn.request :json
           conn.request :retry,
+            max: config.retries,
             interval: 0.05,
             backoff_factor: 2,
             exceptions: [Faraday::ClientError, Faraday::TimeoutError],
             methods: [],
             retry_if: -> (env, exception) {
               env[:method] == :get &&
-              RETRYABLE_STATUS_CODES.include?(env[:status])
+                (exception.is_a?(Faraday::TimeoutError) ||
+                 RETRYABLE_STATUS_CODES.include?(env[:status]))
             }
 
 
@@ -59,14 +55,26 @@ module Applicaster
         if e.response[:status] == 401
           nil
         else
-          raise e
+          raise
         end
       end
-    end
 
-    def initialize(client_id = nil, client_secret = nil)
-      @client_id = client_id || ENV["ACCOUNTS_CLIENT_ID"]
-      @client_secret = client_secret || ENV["ACCOUNTS_CLIENT_SECRET"]
+      def config
+        @config ||= Configuration.new
+      end
+
+      def configure
+        yield config
+      end
+
+      def oauth_client(config = config)
+        ::OAuth2::Client.new(
+          config.client_id,
+          config.client_secret,
+          site: config.base_url,
+          authorize_url: "/oauth/authorize",
+        )
+      end
     end
 
     def user_data_from_omniauth(omniauth_credentials)
@@ -87,24 +95,9 @@ module Applicaster
     protected
 
     def client_credentials_token
-      @client_credentials_token ||= client.client_credentials.get_token
-    end
-
-    def client
-      @client ||= ::OAuth2::Client.new(
-        client_id,
-        client_secret,
-        site: Applicaster::Accounts.site,
-        authorize_url: "/oauth/authorize",
-      )
-    end
-
-    def access_token(omniauth_credentials)
-      @access_token ||= OAuth2::AccessToken.new(
-        client,
-        omniauth_credentials["token"],
-        omniauth_credentials.except("token", "expires"),
-      )
+      @client_credentials_token ||= self.class.oauth_client
+        .client_credentials
+        .get_token
     end
   end
 end

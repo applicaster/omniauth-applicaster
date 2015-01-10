@@ -3,8 +3,14 @@ module WebmockStubsHelper
     config.include self
   end
 
+  def disable_webmock
+    WebMock.allow_net_connect!
+    yield
+    WebMock.disable_net_connect!
+  end
+
   def stub_client_credentials_request
-    stub_request(:post, "https://client_id:client_secret@#{accounts_host}/oauth/token")
+    stub_request(:post, "https://client-id:client-secret@#{accounts_host}/oauth/token")
       .with(:body => {"grant_type"=>"client_credentials"})
       .to_return(successful_json_response(access_token: "client-credentials-token"))
   end
