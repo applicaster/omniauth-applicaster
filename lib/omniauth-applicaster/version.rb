@@ -1,4 +1,4 @@
-module Omniauth
+module OmniAuth
   module Applicaster
     VERSION = "1.1.1"
   end

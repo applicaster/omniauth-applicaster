@@ -5,7 +5,7 @@ require 'omniauth-applicaster/version'
 
 Gem::Specification.new do |spec|
   spec.name          = "omniauth-applicaster"
-  spec.version       = Omniauth::Applicaster::VERSION
+  spec.version       = OmniAuth::Applicaster::VERSION
   spec.authors       = ["Neer Friedman"]
   spec.email         = ["neerfri@gmail.com"]
   spec.summary       = %q{Omniauth strategy for http://accounts.applicaster.com}
