@@ -1,5 +1,3 @@
-require_relative "user"
-
 module Applicaster
   module AuthHelpers
     def current_user
