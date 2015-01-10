@@ -55,6 +55,12 @@ module Applicaster
             .get("/api/v1/users/current.json")
             .body
         )
+      rescue Faraday::ClientError => e
+        if e.response[:status] == 401
+          nil
+        else
+          raise e
+        end
       end
     end
 

@@ -33,56 +33,6 @@ RSpec.describe Applicaster::Accounts do
     end
   end
 
-  describe "#initialize" do
-    it "accepts client_id and client_secret" do
-      service = Applicaster::Accounts.new("my_client_id", "my_client_secret")
-
-      expect(service.client_id).to eq("my_client_id")
-      expect(service.client_secret).to eq("my_client_secret")
-    end
-
-    it "takes default values from ENV vars" do
-      expect(accounts_service.client_id).to eq("client_id")
-      expect(accounts_service.client_secret).to eq("client_secret")
-    end
-  end
-
-  describe "#accounts" do
-    before do
-      stub_client_credentials_request
-      stub_accounts_index_request
-    end
-
-    it "returns an array of Account objects" do
-      expect(return_value).to be_kind_of(Array)
-      expect(return_value.size).to eq(2)
-      expect(return_value.first).to be_kind_of(Applicaster::Accounts::Account)
-    end
-
-    def return_value
-      @return_value ||= accounts_service.accounts
-    end
-
-    def stub_accounts_index_request
-      stub_request(:get, "https://accounts2.applicaster.com/api/v1/accounts.json").
-         with(query: { access_token: "client-credentials-token" }).
-         to_return(successful_json_response(mock_accounts_response))
-    end
-
-    def mock_accounts_response
-      [
-        {
-          id: "1-account-1",
-          name: "Account 1",
-        },
-        {
-          id: "2-account-2",
-          name: "Account 2",
-        },
-      ]
-    end
-  end
-
   describe ".connection" do
     let(:remote_url) { "https://accounts2.applicaster.com/test.json" }
     let(:request_stub) { stub_request(:get, remote_url) }
@@ -134,6 +84,80 @@ RSpec.describe Applicaster::Accounts do
 
     def connection
       Applicaster::Accounts.connection
+    end
+  end
+
+  describe ".user_from_token" do
+    let(:return_value) { Applicaster::Accounts.user_from_token(token) }
+
+    before do
+      stub_current_user_requests
+    end
+
+    context "when token is valid" do
+      let(:token) { "valid-access-token" }
+
+      it "returns an Applicaster::Accounts::User instance" do
+        expect(return_value).to be_kind_of(Applicaster::Accounts::User)
+      end
+    end
+
+    context "when token is invalid" do
+      let(:token) { "invalid-access-token" }
+
+      it "returns nil" do
+        expect(return_value).to be nil
+      end
+    end
+  end
+
+  describe "#initialize" do
+    it "accepts client_id and client_secret" do
+      service = Applicaster::Accounts.new("my_client_id", "my_client_secret")
+
+      expect(service.client_id).to eq("my_client_id")
+      expect(service.client_secret).to eq("my_client_secret")
+    end
+
+    it "takes default values from ENV vars" do
+      expect(accounts_service.client_id).to eq("client_id")
+      expect(accounts_service.client_secret).to eq("client_secret")
+    end
+  end
+
+  describe "#accounts" do
+    before do
+      stub_client_credentials_request
+      stub_accounts_index_request
+    end
+
+    it "returns an array of Account objects" do
+      expect(return_value).to be_kind_of(Array)
+      expect(return_value.size).to eq(2)
+      expect(return_value.first).to be_kind_of(Applicaster::Accounts::Account)
+    end
+
+    def return_value
+      @return_value ||= accounts_service.accounts
+    end
+
+    def stub_accounts_index_request
+      stub_request(:get, "https://accounts2.applicaster.com/api/v1/accounts.json").
+         with(query: { access_token: "client-credentials-token" }).
+         to_return(successful_json_response(mock_accounts_response))
+    end
+
+    def mock_accounts_response
+      [
+        {
+          id: "1-account-1",
+          name: "Account 1",
+        },
+        {
+          id: "2-account-2",
+          name: "Account 2",
+        },
+      ]
     end
   end
 

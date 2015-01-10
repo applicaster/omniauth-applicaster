@@ -99,20 +99,4 @@ RSpec.describe Applicaster::AuthHelpers do
       }
     }
   end
-
-  def stub_current_user_requests
-    stub_request(:get, "https://accounts2.applicaster.com/api/v1/users/current.json")
-      .with(query: { access_token: "valid-access-token" })
-      .to_return(successful_json_response(mock_user_response))
-
-    stub_request(:get, "https://accounts2.applicaster.com/api/v1/users/current.json")
-      .with(query: { access_token: "invalid-access-token" })
-      .to_return(status: 401, body: "")
-  end
-
-  def mock_user_response
-    {
-      id: "123"
-    }
-  end
 end

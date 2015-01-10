@@ -21,13 +21,8 @@ module Applicaster
       return nil unless session[:omniauth_credentials]
 
       token = session[:omniauth_credentials][:token]
-      Applicaster::Accounts.user_from_token(token)
-    rescue Faraday::ClientError => e
-      if e.response[:status] == 401
-        session.delete(:omniauth_credentials)
-        nil
-      else
-        raise e
+      Applicaster::Accounts.user_from_token(token).tap do |user|
+        session.delete(:omniauth_credentials) unless user
       end
     end
   end
