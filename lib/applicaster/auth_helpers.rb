@@ -3,21 +3,12 @@ require_relative "user"
 module Applicaster
   module AuthHelpers
     def current_user
-      return nil unless session[:omniauth_credentials]
-
-      @current_user ||= user_from_session.tap do |user|
-        session.delete(:omniauth_credentials) unless user
-      end
-    rescue OAuth2::Error => e
-      session.delete(:omniauth_credentials)
-      nil
+      @current_user ||= user_from_session
     end
 
     def user_signed_in?
       !current_user.nil?
     end
-
-    protected
 
     def authenticate_user!
       unless current_user
@@ -26,17 +17,20 @@ module Applicaster
       end
     end
 
-    def user_from_session
-      Applicaster::User.new(
-        accounts_client.user_data_from_omniauth(session[:omniauth_credentials])
-      )
-    end
+    protected
 
-    def accounts_client
-      Applicaster::Accounts.new(
-        Settings.accounts_service.id,
-        Settings.accounts_service.secret,
-      )
+    def user_from_session
+      return nil unless session[:omniauth_credentials]
+
+      token = session[:omniauth_credentials][:token]
+      Applicaster::Accounts.user_from_token(token)
+    rescue Faraday::ClientError => e
+      if e.response[:status] == 401
+        session.delete(:omniauth_credentials)
+        nil
+      else
+        raise e
+      end
     end
   end
 end

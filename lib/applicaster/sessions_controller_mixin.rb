@@ -5,7 +5,7 @@ module Applicaster
     end
 
     def create
-      session[:omniauth_credentials] = auth_hash.credentials.to_hash
+      session[:omniauth_credentials] = omniauth_credentials
 
       redirect_to(session.delete(:path_before_login) || '/')
     end
@@ -27,17 +27,8 @@ module Applicaster
 
     protected
 
-    def auth_hash
-      request.env['omniauth.auth']
+    def omniauth_credentials
+      request.env['omniauth.auth'].credentials.to_hash.symbolize_keys
     end
-
-    def access_token
-      @access_token ||= OAuth2::AccessToken.new(
-        client,
-        auth_hash.credentials.token,
-        auth_hash.credentials.to_hash.except("token", "expires"),
-      )
-    end
-
   end
 end
