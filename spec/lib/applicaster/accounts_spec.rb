@@ -92,6 +92,20 @@ RSpec.describe Applicaster::Accounts do
     end
   end
 
+  describe ".accounts_from_token" do
+    let(:token) { "valid-access-token" }
+    let(:return_value)  { Applicaster::Accounts.accounts_from_token(token) }
+
+    before do
+      stub_accounts_index_request(token)
+    end
+
+    it "returns an array of Applicaster::Accounts::Account" do
+      expect(return_value).to be_kind_of(Array)
+      expect(return_value.first).to be_kind_of(Applicaster::Accounts::Account)
+    end
+  end
+
   describe ".config" do
     it "returns an Applicaster::Accounts::Configuration" do
       expect(config).to be_kind_of(Applicaster::Accounts::Configuration)
@@ -119,7 +133,7 @@ RSpec.describe Applicaster::Accounts do
   describe "#accounts" do
     before do
       stub_client_credentials_request
-      stub_accounts_index_request
+      stub_accounts_index_request("client-credentials-token")
     end
 
     it "returns an array of Account objects" do
@@ -131,24 +145,24 @@ RSpec.describe Applicaster::Accounts do
     def return_value
       @return_value ||= accounts_service.accounts
     end
+  end
 
-    def stub_accounts_index_request
-      stub_request(:get, "https://accounts2.applicaster.com/api/v1/accounts.json").
-         with(query: { access_token: "client-credentials-token" }).
-         to_return(successful_json_response(mock_accounts_response))
-    end
+  def stub_accounts_index_request(token)
+    stub_request(:get, "https://accounts2.applicaster.com/api/v1/accounts.json").
+       with(query: { access_token: token }).
+       to_return(successful_json_response(mock_accounts_response))
+  end
 
-    def mock_accounts_response
-      [
-        {
-          id: "1-account-1",
-          name: "Account 1",
-        },
-        {
-          id: "2-account-2",
-          name: "Account 2",
-        },
-      ]
-    end
+  def mock_accounts_response
+    [
+      {
+        id: "1-account-1",
+        name: "Account 1",
+      },
+      {
+        id: "2-account-2",
+        name: "Account 2",
+      },
+    ]
   end
 end

@@ -59,6 +59,13 @@ module Applicaster
         end
       end
 
+      def accounts_from_token(token)
+        connection(token: token)
+          .get("/api/v1/accounts.json")
+          .body
+          .map {|a| Account.new(a) }
+      end
+
       def config
         @config ||= Configuration.new
       end
@@ -82,10 +89,7 @@ module Applicaster
     end
 
     def accounts
-      connection(token: client_credentials_token.token)
-        .get("/api/v1/accounts.json")
-        .body
-        .map {|a| Account.new(a) }
+      self.class.accounts_from_token(client_credentials_token.token)
     end
 
     def connection(*args)
