@@ -15,14 +15,21 @@ module Applicaster
       end
     end
 
+    def current_access_token
+      session[:omniauth_credentials][:token] if session[:omniauth_credentials]
+    end
+
     protected
 
-    def user_from_session
-      return nil unless session[:omniauth_credentials]
+    def clear_omniauth_credentials
+      session.delete(:omniauth_credentials)
+    end
 
-      token = session[:omniauth_credentials][:token]
-      Applicaster::Accounts.user_from_token(token).tap do |user|
-        session.delete(:omniauth_credentials) unless user
+    def user_from_session
+      return nil unless current_access_token
+
+      Applicaster::Accounts.user_from_token(current_access_token).tap do |user|
+        clear_omniauth_credentials unless user
       end
     end
   end

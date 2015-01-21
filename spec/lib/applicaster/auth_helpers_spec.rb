@@ -92,6 +92,24 @@ RSpec.describe Applicaster::AuthHelpers do
     end
   end
 
+  describe "#current_access_token" do
+    it "returns access token" do
+      expect(controller.current_access_token).to eq(
+        session[:omniauth_credentials][:token]
+      )
+    end
+
+    context "when session has no omniauth_credentials" do
+      it "returns nil" do
+        expect(controller.current_access_token).to be nil
+      end
+
+      def session
+        {}
+      end
+    end
+  end
+
   def session
     {
       omniauth_credentials: {
