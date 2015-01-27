@@ -90,6 +90,20 @@ RSpec.describe Applicaster::Accounts do
         expect(return_value).to be nil
       end
     end
+
+    context "when request times out" do
+      before do
+        stub_request(:get, "https://#{accounts_host}/api/v1/users/current.json")
+          .with(query: { access_token: "valid-access-token" })
+          .to_timeout
+      end
+
+      it "raises Faraday::TimeoutError" do
+        expect {
+          Applicaster::Accounts.user_from_token("valid-access-token")
+        }.to raise_error(Faraday::TimeoutError)
+      end
+    end
   end
 
   describe ".accounts_from_token" do

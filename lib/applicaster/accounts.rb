@@ -52,7 +52,7 @@ module Applicaster
             .body
         )
       rescue Faraday::ClientError => e
-        if e.response[:status] == 401
+        if e.response && e.response[:status] == 401
           nil
         else
           raise
