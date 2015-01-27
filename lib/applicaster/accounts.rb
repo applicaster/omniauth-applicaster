@@ -5,8 +5,9 @@ require "virtus"
 module Applicaster
   class Accounts
     autoload :Account, "applicaster/accounts/account"
-    autoload :User, "applicaster/accounts/user"
     autoload :Configuration, "applicaster/accounts/configuration"
+    autoload :Permission, "applicaster/accounts/permission"
+    autoload :User, "applicaster/accounts/user"
 
     RETRYABLE_STATUS_CODES = [500, 503, 502]
 
