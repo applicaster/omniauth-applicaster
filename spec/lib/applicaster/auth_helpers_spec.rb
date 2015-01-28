@@ -108,6 +108,20 @@ RSpec.describe Applicaster::AuthHelpers do
         {}
       end
     end
+
+    context "when hash in session has string keys" do
+      it "returns access token" do
+        expect(controller.current_access_token).to eq("access-token")
+      end
+
+      def session
+        {
+          omniauth_credentials: {
+            "token" => "access-token"
+          }
+        }
+      end
+    end
   end
 
   def session

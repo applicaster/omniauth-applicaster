@@ -16,7 +16,9 @@ module Applicaster
     end
 
     def current_access_token
-      session[:omniauth_credentials][:token] if session[:omniauth_credentials]
+      if credentials = session[:omniauth_credentials]
+        credentials[:token] || credentials["token"]
+      end
     end
 
     protected
