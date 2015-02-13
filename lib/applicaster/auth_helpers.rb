@@ -10,7 +10,7 @@ module Applicaster
 
     def authenticate_user!
       unless current_user
-        session[:path_before_login] = url_for(params)
+        store_location!
         redirect_to '/auth/applicaster'
       end
     end
@@ -22,6 +22,14 @@ module Applicaster
     end
 
     protected
+
+    def store_location!
+      session[:path_before_login] = if request.get?
+                                      request.fullpath
+                                    else
+                                      request.referrer
+                                    end
+    end
 
     def clear_omniauth_credentials
       session.delete(:omniauth_credentials)

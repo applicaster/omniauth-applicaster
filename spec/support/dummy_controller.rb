@@ -12,4 +12,7 @@ class DummyController
   def params
     {}
   end
+
+  def request
+  end
 end

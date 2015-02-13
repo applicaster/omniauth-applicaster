@@ -1,9 +1,11 @@
 RSpec.describe Applicaster::AuthHelpers do
   let(:dummy_class) { Class.new(DummyController) { include Applicaster::AuthHelpers } }
   let(:controller) { dummy_class.new }
+  let(:request) { double("request", get?: true) }
 
   before do
     allow(controller).to receive(:session).and_return(session)
+    allow(controller).to receive(:request) { request }
 
     stub_current_user_requests
   end
@@ -76,7 +78,7 @@ RSpec.describe Applicaster::AuthHelpers do
     context "when current_user is nil" do
       before do
         allow(controller).to receive(:current_user).and_return(nil)
-        allow(controller).to receive(:url_for).and_return("/current")
+        allow(request).to receive(:fullpath).and_return("/current")
       end
 
       it "redirects to '/auth/applicaster'" do
@@ -88,6 +90,18 @@ RSpec.describe Applicaster::AuthHelpers do
         controller.authenticate_user!
 
         expect(controller.session[:path_before_login]).to eq("/current")
+      end
+
+      context "when request is not GET" do
+        before do
+          allow(request).to receive(:get?) { false }
+          allow(request).to receive(:referrer) { "/referrer" }
+        end
+
+        it "redirects to the referrer of the request" do
+          controller.authenticate_user!
+          expect(controller.session[:path_before_login]).to eq("/referrer")
+        end
       end
     end
   end
