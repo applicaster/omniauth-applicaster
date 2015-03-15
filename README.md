@@ -24,8 +24,13 @@ Applicaster::Accounts.configure do |config|
   config.client_id = "my-service-uid"
   config.client_secret = "my-service-secret"
 
-  #use local accounts service with Pow when in development
-  config.base_url = "http://accounts2.dev/" if Rails.env.development?
+  if Rails.env.development?
+    # Use local accounts service with Pow when in development
+    config.base_url = "http://accounts2.dev/"
+
+    # Set the timeout for the accounts SDK requests in seconds
+    config.timeout = 60
+  end
 end
 ```
 
