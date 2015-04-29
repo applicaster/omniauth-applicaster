@@ -75,7 +75,7 @@ module Applicaster
         yield config
       end
 
-      def oauth_client(config = config)
+      def oauth_client(config = config())
         ::OAuth2::Client.new(
           config.client_id,
           config.client_secret,
