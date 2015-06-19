@@ -30,7 +30,7 @@ module Applicaster
             backoff_factor: 2,
             exceptions: [Faraday::ClientError, Faraday::TimeoutError],
             methods: [],
-            retry_if: -> (env, exception) {
+            retry_if: ->(env, exception) {
               env[:method] == :get &&
                 (exception.is_a?(Faraday::TimeoutError) ||
                  RETRYABLE_STATUS_CODES.include?(env[:status]))
