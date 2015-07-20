@@ -25,7 +25,7 @@ module Applicaster
 
 
       def default_base_url
-        ENV["ACCOUNTS_BASE_URL"] || "https://accounts2.applicaster.com/"
+        ENV["ACCOUNTS_BASE_URL"] || "https://accounts.applicaster.com/"
       end
     end
   end
