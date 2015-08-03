@@ -111,6 +111,31 @@ accounts = Applicaster::Accounts.accounts_from_token(access_token)
 # accounts is an array of `Applicaster::Accounts::User` objects
 ```
 
+
+### Testing your app
+
+The library contains helpers to make functional tests easier
+
+In `spec/spec_helper.rb` add:
+```ruby
+RSpec.configure do |config|
+  config.include Applicaster::Test::Accounts::WebMockHelper
+end
+```
+
+You can use `accounts_mock_data` to access the fake data, for example:
+`accounts_mock_data.all_accounts_attributes.first`
+
+in example groups that use the client_credentials flow use:
+```ruby
+before do
+  stub_client_credentials_request
+  stub_accounts_index_response(token: client_credentials_token)
+end
+```
+
+
+
 ## Contributing
 
 1. Fork it ( https://github.com/[my-github-username]/omniauth-applicaster/fork )
