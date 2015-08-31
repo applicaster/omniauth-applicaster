@@ -28,7 +28,7 @@ module Applicaster
             max: config.retries,
             interval: 0.05,
             backoff_factor: 2,
-            exceptions: [Faraday::ClientError, Faraday::TimeoutError],
+            exceptions: [Faraday::ClientError, Faraday::TimeoutError, Faraday::ConnectionFailed],
             methods: [],
             retry_if: ->(env, exception) {
               env[:method] == :get &&
