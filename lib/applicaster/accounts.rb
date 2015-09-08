@@ -9,7 +9,7 @@ module Applicaster
     autoload :Permission, "applicaster/accounts/permission"
     autoload :User, "applicaster/accounts/user"
 
-    RETRYABLE_STATUS_CODES = [500, 503, 502]
+    RETRYABLE_STATUS_CODES = [500, 502, 503, 504]
 
     class << self
       def connection(options = {})

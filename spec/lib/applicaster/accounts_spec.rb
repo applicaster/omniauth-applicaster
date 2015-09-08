@@ -2,8 +2,8 @@ RSpec.describe Applicaster::Accounts do
   let(:accounts_service) { Applicaster::Accounts.new }
 
   describe "::RETRYABLE_STATUS_CODES" do
-    it "is [500, 503, 502]" do
-      expect(Applicaster::Accounts::RETRYABLE_STATUS_CODES).to eq([500, 503, 502])
+    it "is [500, 502, 503, 504]" do
+      expect(Applicaster::Accounts::RETRYABLE_STATUS_CODES).to eq([500, 502, 503, 504])
     end
   end
 
