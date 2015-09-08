@@ -26,7 +26,7 @@ module WebmockStubsHelper
   end
 
   def accounts_host
-    "accounts2.applicaster.com"
+    "accounts.applicaster.com"
   end
 
   def mock_user_response

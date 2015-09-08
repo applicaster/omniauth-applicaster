@@ -8,7 +8,7 @@ RSpec.describe Applicaster::Accounts do
   end
 
   describe ".connection" do
-    let(:remote_url) { "https://accounts2.applicaster.com/test.json" }
+    let(:remote_url) { "https://#{accounts_host}/test.json" }
     let(:request_stub) { stub_request(:get, remote_url) }
 
     context "with successful response" do
@@ -162,7 +162,7 @@ RSpec.describe Applicaster::Accounts do
   end
 
   def stub_accounts_index_request(token)
-    stub_request(:get, "https://accounts2.applicaster.com/api/v1/accounts.json").
+    stub_request(:get, "https://#{accounts_host}/api/v1/accounts.json").
        with(query: { access_token: token }).
        to_return(successful_json_response(mock_accounts_response))
   end

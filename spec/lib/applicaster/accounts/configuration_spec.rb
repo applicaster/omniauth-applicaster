@@ -3,7 +3,7 @@ RSpec.describe Applicaster::Accounts::Configuration do
 
   specify "defaults" do
     expect(config.attributes).to eq({
-      base_url: "https://accounts2.applicaster.com/",
+      base_url: "https://accounts.applicaster.com/",
       client_id: nil,
       client_secret: nil,
       retries: 2,
