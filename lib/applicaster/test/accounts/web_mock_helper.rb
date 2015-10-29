@@ -9,6 +9,14 @@ module Applicaster
   module Test
     module Accounts
       module WebMockHelper
+        def stub_accounts_user_show_response(options = {})
+          user = options[:user] || accounts_mock_data.user_attributes
+
+          stub_request(:get, accounts_base_url.join("/api/v1/users/#{user[:id]}.json"))
+            .with(query: { access_token: options[:token] })
+            .to_return(successful_json_response(user))
+        end
+
         def stub_accounts_index_response(options = {})
           accounts = options[:accounts] || accounts_mock_data.all_accounts_attributes
 

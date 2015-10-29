@@ -97,6 +97,14 @@ service.accounts.each do |account|
 end
 ```
 
+#### Get user by id
+
+```ruby
+service = Applicaster::Accounts.new
+user = service.find_user_by_id(user_id)
+# user is an Applicaster::Accounts::User instance
+```
+
 #### Get a user using an access token
 
 ```ruby
@@ -125,6 +133,7 @@ end
 
 You can use `accounts_mock_data` to access the fake data, for example:
 `accounts_mock_data.all_accounts_attributes.first`
+`accounts_mock_data.user_attributes`
 
 in example groups that use the client_credentials flow use:
 ```ruby
@@ -134,6 +143,21 @@ before do
 end
 ```
 
+in tests that use `find_user_by_id` method you can do the following:
+```ruby
+
+let(:user) { accounts_mock_data.user_attributes }
+let(:accounts_service) { Applicaster::Accounts.new }
+
+before do
+  stub_client_credentials_request
+  stub_accounts_user_show_response(user: user, token: client_credentials_token)
+end
+
+it "..." do
+  expect(accounts_service.find_user_by_id(user[:id])).to ...
+end
+```
 
 
 ## Contributing

@@ -17,4 +17,12 @@ RSpec.describe Applicaster::Test::Accounts::MockData do
       it { is_expected.to include(name: /Test Account \d+/) }
     end
   end
+
+  describe "#user_attributes" do
+    subject(:user) { mock_data.user_attributes }
+
+    it { is_expected.to include(:id) }
+    it { is_expected.to include(name: /\ATest User \d+\z/) }
+    it { is_expected.to include(email: /\Atest-user\d+@example.com\z/) }
+  end
 end

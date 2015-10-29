@@ -13,6 +13,15 @@ module Applicaster
             }
           end
         end
+
+        def user_attributes
+          id = Test.inc_sequence
+          {
+            id: id,
+            name: "Test User #{id}",
+            email: "test-user#{id}@example.com",
+          }
+        end
       end
     end
   end
