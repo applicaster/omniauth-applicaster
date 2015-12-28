@@ -106,6 +106,35 @@ RSpec.describe Applicaster::Accounts do
     end
   end
 
+  describe ".user_by_id_and_token" do
+    let(:user_id) { 11 }
+    let(:return_value) { Applicaster::Accounts.user_by_id_and_token(user_id, token) }
+
+    context "when token is valid" do
+      let(:token) { "valid-access-token" }
+
+      before do
+        stub_user_show_request(user_id, token)
+      end
+
+      it "returns an Applicaster::Accounts::User instance" do
+        expect(return_value).to be_kind_of(Applicaster::Accounts::User)
+      end
+    end
+
+    context "when token is invalid" do
+      let(:token) { "invalid-access-token" }
+
+      before do
+        stub_user_show_request_with_invalid_token(user_id, token)
+      end
+
+      it "fails with Faraday::ClientError" do
+        expect { return_value }.to raise_error(Faraday::ClientError)
+      end
+    end
+   end
+
   describe ".accounts_from_token" do
     let(:token) { "valid-access-token" }
     let(:return_value)  { Applicaster::Accounts.accounts_from_token(token) }
@@ -158,6 +187,20 @@ RSpec.describe Applicaster::Accounts do
 
     def return_value
       @return_value ||= accounts_service.accounts
+    end
+  end
+
+  describe "#find_user_by_id" do
+    let(:user_id) { 11 }
+
+    before do
+      stub_client_credentials_request
+      stub_user_show_request(user_id, "client-credentials-token")
+    end
+
+    it "returns User object" do
+      expect(accounts_service.find_user_by_id(user_id))
+        .to be_kind_of(Applicaster::Accounts::User)
     end
   end
 

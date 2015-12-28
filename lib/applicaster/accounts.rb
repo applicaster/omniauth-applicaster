@@ -60,6 +60,14 @@ module Applicaster
         end
       end
 
+      def user_by_id_and_token(id, token)
+        Applicaster::Accounts::User.new(
+          connection(token: token)
+            .get("/api/v1/users/#{id}.json")
+            .body
+        )
+      end
+
       def accounts_from_token(token)
         connection(token: token)
           .get("/api/v1/accounts.json")
@@ -91,6 +99,10 @@ module Applicaster
 
     def accounts
       self.class.accounts_from_token(client_credentials_token.token)
+    end
+
+    def find_user_by_id(id)
+      self.class.user_by_id_and_token(id, client_credentials_token.token)
     end
 
     def connection(*args)

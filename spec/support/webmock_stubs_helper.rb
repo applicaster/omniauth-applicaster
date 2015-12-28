@@ -25,6 +25,18 @@ module WebmockStubsHelper
       .to_return(status: 401, body: "")
   end
 
+  def stub_user_show_request_with_invalid_token(user_id, token)
+    stub_request(:get, "https://#{accounts_host}/api/v1/users/#{user_id}.json")
+      .with(query: { access_token: token })
+      .to_return(status: 401, body: "")
+  end
+
+  def stub_user_show_request(user_id, token)
+    stub_request(:get, "https://#{accounts_host}/api/v1/users/#{user_id}.json").
+       with(query: { access_token: token }).
+       to_return(successful_json_response(mock_user_response))
+  end
+
   def accounts_host
     "accounts.applicaster.com"
   end
