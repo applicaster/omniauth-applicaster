@@ -191,16 +191,36 @@ RSpec.describe Applicaster::Accounts do
   end
 
   describe "#find_user_by_id" do
-    let(:user_id) { 11 }
-
     before do
       stub_client_credentials_request
-      stub_user_show_request(user_id, "client-credentials-token")
     end
 
-    it "returns User object" do
-      expect(accounts_service.find_user_by_id(user_id))
-        .to be_kind_of(Applicaster::Accounts::User)
+    context "when accounts service returns 200" do
+      let(:user_id) { 11 }
+
+      before do
+        stub_user_show_request(user_id, "client-credentials-token")
+      end
+
+      it "returns User object" do
+        expect(accounts_service.find_user_by_id(user_id))
+          .to be_kind_of(Applicaster::Accounts::User)
+      end
+    end
+
+    context "when accounts service returns 404" do
+      let(:user_id) { "wrong-id" }
+
+      before do
+        stub_request(:get, "https://#{accounts_host}/api/v1/users/#{user_id}.json").
+           with(query: { access_token: "client-credentials-token" }).
+           to_return(status: 404, body: "")
+      end
+
+      it "doesn't raise" do
+        expect{ accounts_service.find_user_by_id(user_id) }
+          .to_not raise_error
+      end
     end
   end
 

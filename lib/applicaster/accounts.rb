@@ -103,6 +103,8 @@ module Applicaster
 
     def find_user_by_id(id)
       self.class.user_by_id_and_token(id, client_credentials_token.token)
+    rescue Faraday::ResourceNotFound
+      nil
     end
 
     def connection(*args)
