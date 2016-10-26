@@ -8,6 +8,7 @@ RSpec.describe Applicaster::Accounts::Configuration do
       client_secret: nil,
       retries: 2,
       timeout: 1.0,
+      faraday_adapter: :excon,
     })
   end
 

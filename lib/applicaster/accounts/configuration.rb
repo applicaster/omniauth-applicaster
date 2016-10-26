@@ -23,6 +23,8 @@ module Applicaster
       attribute :timeout, Float,
         default: 1
 
+      attribute :faraday_adapter, nil, default: :excon
+
 
       def default_base_url
         ENV["ACCOUNTS_BASE_URL"] || "https://accounts.applicaster.com/"
