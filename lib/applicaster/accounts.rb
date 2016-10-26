@@ -42,7 +42,7 @@ module Applicaster
           # conn.response :logger, Logger.new(STDOUT)
           conn.response :raise_error
 
-          conn.adapter Faraday.default_adapter
+          conn.adapter config.faraday_adapter
         end
       end
 
