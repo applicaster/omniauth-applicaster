@@ -97,6 +97,10 @@ module Applicaster
       access_token(omniauth_credentials).get("/api/v1/users/current.json").parsed
     end
 
+    def delete_session_for_token(token)
+      connection(token: token).delete("/api/v1/sessions/0.json")
+    end
+
     def accounts
       self.class.accounts_from_token(client_credentials_token.token)
     end

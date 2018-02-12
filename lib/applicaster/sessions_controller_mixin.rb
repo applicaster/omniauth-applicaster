@@ -11,6 +11,7 @@ module Applicaster
     end
 
     def destroy
+      Applicaster::Accounts.new.delete_session_for_token(current_access_token)
       reset_session
 
       redirect_to "/"
