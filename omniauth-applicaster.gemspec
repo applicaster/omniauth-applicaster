@@ -24,7 +24,8 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "webmock"
 
   spec.add_dependency "omniauth-oauth2"
-  spec.add_dependency "faraday", "~> 0.9"
+  spec.add_dependency "faraday", "~> 0.11"
+  spec.add_dependency "oauth2", "> 1.3.1"
   spec.add_dependency "faraday_middleware"
   spec.add_dependency "excon"
   spec.add_dependency "virtus"

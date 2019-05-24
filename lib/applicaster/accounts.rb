@@ -20,7 +20,7 @@ module Applicaster
 
         Faraday.new(conn_opts) do |conn|
           if options[:token]
-            conn.request :oauth2, options[:token]
+            conn.request :oauth2, options[:token], token_type: 'param'
           end
 
           conn.request :json
@@ -89,6 +89,7 @@ module Applicaster
           config.client_secret,
           site: config.base_url,
           authorize_url: "/oauth/authorize",
+          auth_scheme: :basic_auth,
         )
       end
     end

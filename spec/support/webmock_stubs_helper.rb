@@ -10,8 +10,9 @@ module WebmockStubsHelper
   end
 
   def stub_client_credentials_request
-    stub_request(:post, "https://client-id:client-secret@#{accounts_host}/oauth/token")
+    stub_request(:post, "https://#{accounts_host}/oauth/token")
       .with(:body => {"grant_type"=>"client_credentials"})
+      .with(basic_auth: ["client-id", "client-secret"])
       .to_return(successful_json_response(access_token: "client-credentials-token"))
   end
 
