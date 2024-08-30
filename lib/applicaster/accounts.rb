@@ -39,7 +39,8 @@ module Applicaster
 
           conn.response :json, content_type: /\bjson$/
           conn.response :raise_error
-
+          # conn.response :logger, Rails.logger
+          # conn.response :logger, Logger.new(STDOUT)
           conn.adapter config.faraday_adapter
         end
       end
