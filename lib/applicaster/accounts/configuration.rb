@@ -25,6 +25,8 @@ module Applicaster
 
       attribute :faraday_adapter, nil, default: :excon
 
+      # Add the request_proc attribute
+      attribute :request_proc, Proc, default: proc { nil }
 
       def default_base_url
         ENV["ACCOUNTS_BASE_URL"] || "https://accounts.applicaster.com/"

@@ -23,6 +23,7 @@ See [Omniauth](https://github.com/intridea/omniauth) for setting up omniauth.
 Applicaster::Accounts.configure do |config|
   config.client_id = "my-service-uid"
   config.client_secret = "my-service-secret"
+  config.request_proc = -> { Thread.current[:request] }
 
   if Rails.env.development?
     # Use local accounts service with Pow when in development
@@ -49,6 +50,12 @@ projects.
 ```ruby
 class ApplicationController < ActionController::Base
   include Applicaster::AuthHelpers
+
+  before_action :set_request_in_thread
+
+  def set_request_in_thread
+    Thread.current[:request] = request
+  end
 end
 ```
 

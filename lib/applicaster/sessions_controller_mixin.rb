@@ -7,7 +7,7 @@ module Applicaster
 
     def create
       session[:omniauth_credentials] = omniauth_credentials
-      Rails.logger.info("Session created successfully for user. IP: #{request.remote_ip}, User Agent: #{request.user_agent}, Params: #{safe_user_params.inspect}")
+      Rails.logger.info("Session created successfully for user. IP: #{request.remote_ip}, User Agent: #{request.user_agent}, Params: #{params[:origin].inspect}")
 
       redirect_to(session.delete(:path_before_login) || '/')
     end
@@ -17,13 +17,12 @@ module Applicaster
       Rails.logger.info("Session destroyed for user: #{user_email}. IP: #{request.remote_ip}, User Agent: #{request.user_agent}")
 
       reset_session
-      redirect_to config.base_url
+      redirect_to "/"
     end
 
     def failure
       Rails.logger.error({
         message: "[Login Failed] - Omniauth error with strategy '#{params[:strategy]}': #{params[:message]}",
-        origin: params[:origin],
         IP: request.remote_ip,
         UserAgent: request.user_agent,
         Params: params[:origin],

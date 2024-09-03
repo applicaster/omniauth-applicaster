@@ -45,6 +45,17 @@ module Applicaster
         end
       end
 
+      def current_request
+        config.request_proc.call if config.request_proc
+      end
+
+      def log_with_request_context(message)
+        request = current_request
+        log_message = "#{message}, IP: #{request&.remote_ip}, User Agent: #{request&.user_agent}"
+
+        Rails.logger.error(log_message)
+      end
+
       def user_from_token(token)
         Rails.logger.info("Fetching user with token: #{token}")
         user = Applicaster::Accounts::User.new(
@@ -53,15 +64,15 @@ module Applicaster
             .body
         )
         if user.nil?
-          Rails.logger.error("[Login Failed] -  User fetch failed. Token: #{token}, IP: #{request.remote_ip}, User Agent: #{request.user_agent}")
+          Rails.logger.error("[Login Failed] - User fetch failed. Token: #{token}")
         end
         user
       rescue Faraday::ClientError => e
         if e.response && e.response[:status] == 401
-          Rails.logger.error("[Login Failed] - Unauthorized access attempt detected. Invalid token: #{token}, IP: #{request.remote_ip}, User Agent: #{request.user_agent}, Error: #{e.message}")
+          log_with_request_context("[Login Failed] - Unauthorized access attempt detected. Invalid token: #{token}, Error: #{e.message}")
           nil
         else
-          Rails.logger.error("[Login Failed] - Error fetching user. Token: #{token}, IP: #{request.remote_ip}, User Agent: #{request.user_agent}, Error: #{e.message}")
+          log_with_request_context("[Login Failed] - Error fetching user. Token: #{token}, Error: #{e.message}")
           raise
         end
       end
@@ -73,7 +84,7 @@ module Applicaster
             .body
         )
       rescue Faraday::ResourceNotFound
-        Rails.logger.error("[Login Failed] - User not found. ID: #{id}, Token: #{token}, IP: #{request.remote_ip}, User Agent: #{request.user_agent}")
+        log_with_request_context("[Login Failed] - User not found. ID: #{id}, Token: #{token}")
         nil
       end
 
@@ -110,7 +121,7 @@ module Applicaster
     def user_data_from_omniauth(omniauth_credentials)
       access_token(omniauth_credentials).get("/api/v1/users/current.json").parsed
     rescue Faraday::ClientError => e
-      Rails.logger.error("[Login Failed] - Failed to fetch user data from Omniauth. Error: #{e.message}")
+      log_with_request_context("[Login Failed] - Failed to fetch user data from Omniauth. Error: #{e.message}")
       raise
     end
 
@@ -137,7 +148,7 @@ module Applicaster
         .client_credentials
         .get_token
     rescue OAuth2::Error => e
-      Rails.logger.error("[Login Failed] - Failed to get client credentials token. Error: #{e.message}")
+      log_with_request_context("[Login Failed] - Failed to get client credentials token. Error: #{e.message}")
       raise
     end
   end
